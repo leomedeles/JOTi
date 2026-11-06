@@ -1,0 +1,19 @@
+# jOTi (joy OT infrastructure) Lab
+
+A practical laboratory to learn OT Networking, Cybersecurity, commissioning and troubleshooting.
+
+## Scope
+
+- 2 IP subnets connected through a Linux router/firewall.
+- 1 Modbus TCP server
+- 1 authorized client
+- 1 UNauthorized client.
+- Packet captures.
+- Routing table.
+- firewall evidence.
+- Reversible faults inbolving firewall rules and return routes.
+
+## Status
+
+Planning and environmen preparation.
+No infrastructure yet.
