@@ -27,3 +27,16 @@ Additional allowlist test:
 - ot-client TCP connection to field port 1502 timed out
 - the final firewall drop counter increased during test
 - this confirms that ot-client is not granted unrestricted access
+
+## Clean rebuild with allowlist
+
+verified after deleting and rebuilding the lab:
+- saved allowlist loaded successfully
+- ot-client read modbus registers
+- ot-other could not access Modbus
+- Both clients could ping the field device
+
+Boundary observtion:
+- a modbus read originating inside the ot-fw succeeded
+- forwading policy does not restrict router-originated traffic
+
