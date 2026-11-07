@@ -22,3 +22,8 @@ verified:
 only the specified Modbus and ping flow, including ther replies are permitted through ot-fw.
 Client identity is matched by IP address
 A clean rebuild is not yet tested.
+
+Additional allowlist test:
+- ot-client TCP connection to field port 1502 timed out
+- the final firewall drop counter increased during test
+- this confirms that ot-client is not granted unrestricted access
