@@ -1,0 +1,6 @@
+table inet ot_lab {
+	chain forward {
+		type filter hook forward priority filter; policy accept;
+		iifname "fw-ops" oifname "fw-field" ip saddr 10.77.20.20 ip daddr 10.77.40.11 tcp dport 502 counter packets 6 bytes 360 drop
+	}
+}
