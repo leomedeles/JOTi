@@ -57,3 +57,18 @@ Conclusion: IP reachability does not prove application availability
 Evidence:
 - evidence/service-stopped.txt
 - evidence/service-recovered.txt
+
+## Missing return route
+
+Fault; removed ot-flied's route to 10.77.20.0/24
+
+Observed:
+- The modbus client time out
+- A TCP SYN from ot-client reached the field interface
+- Restoring the retung route restored reading modbus registers
+- no server restart or firewall change needed
+
+Conclusion: communication needs a working path in both directions.
+A timeout alone does not identify wheather routing or filtering caused it
+
+Evidence: evidence/missing-return-route.txt
