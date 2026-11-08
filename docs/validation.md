@@ -72,3 +72,22 @@ Conclusion: communication needs a working path in both directions.
 A timeout alone does not identify wheather routing or filtering caused it
 
 Evidence: evidence/missing-return-route.txt
+
+## Incorrect firewall source address
+
+Fault: changed the permitted Modbus source from 10.77.20.10 to .99
+
+observed:
+- legitimate client timed out
+- its SYN appeared on fw-ops ingress.
+- no corresponding SYN appeared on fw-field egress.
+- modbus allow counter remained zero while the drop counter increased
+
+recovery:
+- reload the saved firewall.nft
+- ot-client read registers
+- ot-other rmained blocked
+
+Conclusion: valid syntax does not guarantee a correct access policy
+
+Evidence: evidence/wrong-fw-source.txt

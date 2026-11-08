@@ -1,0 +1,54 @@
+--- firewall.nft	2026-11-07 18:11:40.359805537 +0000
++++ /tmp/wrong-source.nft	2026-11-08 15:07:33.269881614 +0000
+@@ -9,7 +9,7 @@
+ 		ct state invalid counter drop
+ 		
+ 		# Allow Modbus request from the authorized client
+-		iifname "fw-ops" oifname "fw-field" ip saddr 10.77.20.10 ip daddr 10.77.40.11 tcp dport 502 ct state { new, established } counter accept
++		iifname "fw-ops" oifname "fw-field" ip saddr 10.77.20.99 ip daddr 10.77.40.11 tcp dport 502 ct state { new, established } counter accept
+ 
+ 		# Allow replies from the Modbus server to that client
+ 		iifname "fw-field" oifname "fw-ops" ip saddr 10.77.40.11 ip daddr 10.77.20.10 tcp sport 502 ct state established counter accept
++ sudo ip netns exec ot-fw nft -f /tmp/wrong-source.nft
++ sudo ip netns exec ot-client /home/leomedeles/projects/JOTi/.venv/bin/python /home/leomedeles/projects/JOTi/scripts/read_device.py
+Connection to (10.77.40.11, 502) failed: timed out
+TCP connection failed
++ sudo ip netns exec ot-fw nft list chain inet ot_lab forward
+table inet ot_lab {
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+		ct state invalid counter packets 0 bytes 0 drop
+		iifname "fw-ops" oifname "fw-field" ip saddr 10.77.20.99 ip daddr 10.77.40.11 tcp dport 502 ct state { established, new } counter packets 0 bytes 0 accept
+		iifname "fw-field" oifname "fw-ops" ip saddr 10.77.40.11 ip daddr 10.77.20.10 tcp sport 502 ct state established counter packets 0 bytes 0 accept
+		iifname "fw-ops" oifname "fw-field" ip saddr { 10.77.20.10, 10.77.20.20 } ip daddr 10.77.40.11 icmp type echo-request counter packets 0 bytes 0 accept
+		iifname "fw-field" oifname "fw-ops" ip saddr 10.77.40.11 ip daddr { 10.77.20.10, 10.77.20.20 } icmp type echo-reply ct state established counter packets 0 bytes 0 accept
+		counter packets 3 bytes 180 drop
+	}
+}
++ sudo ip netns exec ot-fw tcpdump -nn -l any 'src host 10.77.20.10 and tcp dst port 502'
+tcpdump: can't parse filter expression: syntax error
++ sudo ip netns exec ot-fw tcpdump -nn -l -i any 'src host 10.77.20.10 and tcp dst port 502'
+tcpdump: data link type LINUX_SLL2
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on any, link-type LINUX_SLL2 (Linux cooked v2), snapshot length 262144 bytes
+15:17:07.829515 fw-ops In  IP 10.77.20.10.59978 > 10.77.40.11.502: Flags [S], seq 1895930816, win 64240, options [mss 1460,sackOK,TS val 2418332643 ecr 0,nop,wscale 7], length 0
+15:17:08.864894 fw-ops In  IP 10.77.20.10.59978 > 10.77.40.11.502: Flags [S], seq 1895930816, win 64240, options [mss 1460,sackOK,TS val 2418333679 ecr 0,nop,wscale 7], length 0
+15:17:09.888911 fw-ops In  IP 10.77.20.10.59978 > 10.77.40.11.502: Flags [S], seq 1895930816, win 64240, options [mss 1460,sackOK,TS val 2418334703 ecr 0,nop,wscale 7], length 0
++ sudo ip netns exec ot-fw nft list chain inet ot_lab forward
+table inet ot_lab {
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+		ct state invalid counter packets 0 bytes 0 drop
+		iifname "fw-ops" oifname "fw-field" ip saddr 10.77.20.99 ip daddr 10.77.40.11 tcp dport 502 ct state { established, new } counter packets 0 bytes 0 accept
+		iifname "fw-field" oifname "fw-ops" ip saddr 10.77.40.11 ip daddr 10.77.20.10 tcp sport 502 ct state established counter packets 0 bytes 0 accept
+		iifname "fw-ops" oifname "fw-field" ip saddr { 10.77.20.10, 10.77.20.20 } ip daddr 10.77.40.11 icmp type echo-request counter packets 0 bytes 0 accept
+		iifname "fw-field" oifname "fw-ops" ip saddr 10.77.40.11 ip daddr { 10.77.20.10, 10.77.20.20 } icmp type echo-reply ct state established counter packets 0 bytes 0 accept
+		counter packets 6 bytes 360 drop
+	}
+}
++ sudo ip netns exec ot-fw nft -f /home/leomedeles/projects/JOTi/firewall.nft
++ sudo ip netns exec ot-client /home/leomedeles/projects/JOTi/.venv/bin/python /home/leomedeles/projects/JOTi/scripts/read_device.py
+Registers:  [2300, 500, 1]
++ sudo ip netns exec ot-other /home/leomedeles/projects/JOTi/.venv/bin/python /home/leomedeles/projects/JOTi/scripts/read_device.py
+Connection to (10.77.40.11, 502) failed: timed out
+TCP connection failed
