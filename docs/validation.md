@@ -40,3 +40,20 @@ Boundary observtion:
 - a modbus read originating inside the ot-fw succeeded
 - forwading policy does not restrict router-originated traffic
 
+## Modbus service failure and recovery
+
+With the field server stopped:
+- No tcp port listener in 502 inside 0t-field
+- ping from ot-client successed
+- modbus client failed to connect
+
+After restarting field server:
+- TCP port 502 listener returnes
+- ot-client read registers
+- no network or firewall changed were nedded
+
+Conclusion: IP reachability does not prove application availability
+
+Evidence:
+- evidence/service-stopped.txt
+- evidence/service-recovered.txt

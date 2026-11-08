@@ -1,0 +1,5 @@
++ sudo ip netns exec ot-field ss -lntp 'sport = :502'
+State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess
+LISTEN 0      100      10.77.40.11:502       0.0.0.0:*    users:(("python",pid=7021,fd=6))
++ sudo ip netns exec ot-client /home/leomedeles/projects/JOTi/.venv/bin/python /home/leomedeles/projects/JOTi/scripts/read_device.py
+Registers:  [2300, 500, 1]
