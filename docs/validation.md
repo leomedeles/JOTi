@@ -91,3 +91,33 @@ recovery:
 Conclusion: valid syntax does not guarantee a correct access policy
 
 Evidence: evidence/wrong-fw-source.txt
+## Connection tracking
+
+Openned a TCP connection from ot-client to the field device's port 502
+
+observed inside ot-fw:
+- ESTABLISHED while cthe connection was open
+- original an reply address/port tuples indentified one conversation
+- TIME_WAIT after the client closed the connection
+- the record disappeared after its tracking timeout expired
+
+Conclusion: a tracking entr can outlive the application's open socket.
+Connection tracking supplies state; firewall rules determine permission
+
+Evidence: evidence/connection-tracking.txt
+
+## IPv6
+
+The current lab application and routed permissions use IPv4
+
+Configuration inspection confirmed:
+- ot-client, ot-fw and ot-filed have IPv6 loopback and link-local addresses
+- IPv6 forwarding is disabled inside ot-fw
+- The inet forwarding chain covers IPv4 and IPv6
+- all forwarding allow rules match IPv4, unmatched traffic is dropped
+
+IPv6 routing is not supported by this baseline
+Local-link IPv6 and router input/output are not prohibited by these rules
+This was configuratino inspection, not an IPv6 traffci test
+
+Evidence: evidence/ipv6-policy.txt
