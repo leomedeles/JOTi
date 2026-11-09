@@ -1,0 +1,33 @@
+
+s sudo ip -n ot-fw -br link 
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP> 
+fw-field@if23    DOWN           36:b1:c2:7e:7a:8c <BROADCAST,MULTICAST> 
+fw-ops@if26      UP             2a:bf:7d:eb:e6:e6 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+
+[exit status: 0]
+
+s labpython ot-client /home/leomedeles/projects/JOTi/scripts/read_device.py 
+Connection to (10.77.40.11, 502) failed: [Errno 101] Network is unreachable
+TCP connection failed
+
+[exit status: 1]
+
+s sudo ip -n ot-fw route show 
+10.77.20.0/24 dev fw-ops proto kernel scope link src 10.77.20.1 
+
+[exit status: 0]
+
+s sudo ip -n ot-fw link set fw-field up 
+
+[exit status: 0]
+
+s sudo ip -n ot-fw route show 
+10.77.20.0/24 dev fw-ops proto kernel scope link src 10.77.20.1 
+10.77.40.0/24 dev fw-field proto kernel scope link src 10.77.40.1 
+
+[exit status: 0]
+
+s labpython ot-client /home/leomedeles/projects/JOTi/scripts/read_device.py 
+Registers:  [2300, 500, 1]
+
+[exit status: 0]
