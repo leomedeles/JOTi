@@ -121,3 +121,12 @@ Local-link IPv6 and router input/output are not prohibited by these rules
 This was configuratino inspection, not an IPv6 traffci test
 
 Evidence: evidence/ipv6-policy.txt
+
+## Field-facing router interface down
+
+- observed fault: 'fw-field' was administratively DOWN while 'fw-op' remained UP
+- diagnosis: 'ot-fw' had no connected route to '10.77.40.0/24'. The client's modbus read failed with "Network is unreachable" and exit status 1
+- correction: bring 'fw-flied' UP
+- recovery: the connected route returned via 'fw-flied', and the client read registers
+
+Evidence evidence/link-down.txt
