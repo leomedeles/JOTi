@@ -104,7 +104,7 @@ observed inside ot-fw:
 Conclusion: a tracking entr can outlive the application's open socket.
 Connection tracking supplies state; firewall rules determine permission
 
-Evidence: evidence/connection-tracking.txt
+Evidence: evidence/connection_tracking.txt
 
 ## IPv6
 
