@@ -7,7 +7,7 @@ Verified after deleating and rebuilding all lab namespaces and the bridge:
 - ot-other could not connect to modbus server
 - ot-other could still ping the field device
 
-Current firewall policy: accept by default, with one explicit block for ot-other accessing 10.77.40.11 on TCP 502.
+Initial firewall policy: accept by default, with one explicit block for ot-other accessing 10.77.40.11 on TCP 502.
 
 ## Allowlist verification
 
@@ -21,7 +21,7 @@ verified:
 
 only the specified Modbus and ping flow, including ther replies are permitted through ot-fw.
 Client identity is matched by IP address
-A clean rebuild is not yet tested.
+A clean rebuild is not yet tested. **tested in next exercise**
 
 Additional allowlist test:
 - ot-client TCP connection to field port 1502 timed out
@@ -124,7 +124,7 @@ Evidence: evidence/ipv6-policy.txt
 
 ## Field-facing router interface down
 
-- observed fault: 'fw-field' was administratively DOWN while 'fw-op' remained UP
+- observed fault: 'fw-field' was administratively DOWN while 'fw-ops' remained UP
 - diagnosis: 'ot-fw' had no connected route to '10.77.40.0/24'. The client's modbus read failed with "Network is unreachable" and exit status 1
 - correction: bring 'fw-flied' UP
 - recovery: the connected route returned via 'fw-flied', and the client read registers
@@ -145,10 +145,10 @@ Evidence: evidence/wrong-subnet-mask.txt
 ## Automatic firewall loading at startup
 
 - change: `network-up.sh` disables IPv4 forwarding, loads `firewall.nft` inside `ot-fw`, and enables forwardinng only after loading succeeds
-- Normal startup: the `ot-lab` ruleset was installed automatically and IPv4 forwarding was enabled
+- Normal startup: the `ot_lab` ruleset was installed automatically and IPv4 forwarding was enabled
 - Access checks: `ot-client` read Modbus registers; `ot-other` timed out on modbus but could ping the field device
 - Failure injection: temporarly renamed the `firewall.nft` before a clean startup
 - Failure result: startup exited with statius 1, IPv4 forwarding remainted disabled, and the ruleset empty
 - Recovery: restored the policy file, removed the partial lab setup, and started again, Startup succeeded and the allowed/denied access checks passed again
 
-Evidence: evidence/firewall.startup.txt
+Evidence: evidence/firewall-startup.txt
