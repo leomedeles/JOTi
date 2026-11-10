@@ -130,3 +130,14 @@ Evidence: evidence/ipv6-policy.txt
 - recovery: the connected route returned via 'fw-flied', and the client read registers
 
 Evidence evidence/link-down.txt
+
+## Incorrect field-device subnet mask
+
+- baseline: `field-fw` used `10.77.40.11/24`, with a return route to `10.77.20.0/24` via `10.77.40.1`; modbus client reads
+- Fault injection: change the `field-fw`subnet mask from /24 to /29, effectively leaving 10.77.40.1 out of that subnet
+- Observed config: only the conected route to `10.77.40.8/29` remained; the return route dissapered
+- Application result: the client modbus connection timed out
+- Diagnosis: attempting to restore return route was rejected becuase the gateway `10.77.40.1` was outside the connected subnet
+- Recovery: restores subnetmask of `/24` and the return route, mosbus client read succeeded
+
+Evidence: evidence/wrong-subnet-mask.txt
