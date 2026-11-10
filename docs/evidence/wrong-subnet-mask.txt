@@ -58,11 +58,31 @@ TCP connection failed
 
 [exit status: 1]
 
+s sudo ip -n ot-flied route add 10.77.20.0/24 via 10.77.40.1 dev field-fw 
+Cannot open network namespace "ot-flied": No such file or directory
+
+[exit status: 255]
+
+s sudo ip -n ot-field route add 10.77.20.0/24 via 10.77.40.1 dev field-fw 
+Error: Nexthop has invalid gateway.
+
+[exit status: 2]
+
 s sudo ip -n ot-field addr del 10.77.40.11/29 dev field-fw 
 
 [exit status: 0]
 
 s sudo ip -n ot-field addr add 10.77.40.11/24 dev field-fw 
+
+[exit status: 0]
+
+s sudo ip -n ot-field route add 10.77.20.0/24 via 10.77.40.1 dev field-fw 
+
+[exit status: 0]
+
+s sudo ip -n ot-field -4 route show 
+10.77.20.0/24 via 10.77.40.1 dev field-fw 
+10.77.40.0/24 dev field-fw proto kernel scope link src 10.77.40.11 
 
 [exit status: 0]
 
