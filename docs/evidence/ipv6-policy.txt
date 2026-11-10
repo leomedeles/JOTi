@@ -1,0 +1,39 @@
+
+s sudo ip -n ot-client -6 -br addr 
+lo               UNKNOWN        ::1/128 
+client-ops@if28  UP             fe80::cc09:abff:fe4a:d706/64 
+
+[exit status: 0]
+
+s sudo ip -n ot-fw -6 -br addr 
+lo               UNKNOWN        ::1/128 
+fw-field@if23    UP             fe80::34b1:c2ff:fe7e:7a8c/64 
+fw-ops@if26      UP             fe80::28bf:7dff:feeb:e6e6/64 
+
+[exit status: 0]
+
+s sudo ip -n ot-field -6 -br addr 
+lo               UNKNOWN        ::1/128 
+field-fw@if24    UP             fe80::9455:10ff:fe9d:c17c/64 
+
+[exit status: 0]
+
+s sudo ip netns exec ot-fw nft list chain inet ot_lab forward 
+table inet ot_lab {
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+		ct state invalid counter packets 0 bytes 0 drop
+		iifname "fw-ops" oifname "fw-field" ip saddr 10.77.20.10 ip daddr 10.77.40.11 tcp dport 502 ct state { established, new } counter packets 26 bytes 1432 accept
+		iifname "fw-field" oifname "fw-ops" ip saddr 10.77.40.11 ip daddr 10.77.20.10 tcp sport 502 ct state established counter packets 18 bytes 982 accept
+		iifname "fw-ops" oifname "fw-field" ip saddr { 10.77.20.10, 10.77.20.20 } ip daddr 10.77.40.11 icmp type echo-request counter packets 0 bytes 0 accept
+		iifname "fw-field" oifname "fw-ops" ip saddr 10.77.40.11 ip daddr { 10.77.20.10, 10.77.20.20 } icmp type echo-reply ct state established counter packets 0 bytes 0 accept
+		counter packets 3 bytes 180 drop
+	}
+}
+
+[exit status: 0]
+
+s sudo ip netns exec ot-fw sysctl net.ipv6.conf.all.forwarding 
+net.ipv6.conf.all.forwarding = 0
+
+[exit status: 0]

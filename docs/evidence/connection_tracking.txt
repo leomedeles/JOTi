@@ -1,0 +1,24 @@
+
+
+s sudo ip netns exec ot-fw conntrack -L -p tcp --dport 502 
+conntrack v1.4.8 (conntrack-tools): 1 flow entries have been shown.
+tcp      6 431194 ESTABLISHED src=10.77.20.10 dst=10.77.40.11 sport=46670 dport=502 src=10.77.40.11 dst=10.77.20.10 sport=502 dport=46670 [ASSURED] mark=0 use=1
+
+[exit status: 0]
+
+s sudo ip netns exec ot-fw conntrack -L -p tcp --dport 502 
+conntrack v1.4.8 (conntrack-tools): 1 flow entries have been shown.
+tcp      6 104 TIME_WAIT src=10.77.20.10 dst=10.77.40.11 sport=46670 dport=502 src=10.77.40.11 dst=10.77.20.10 sport=502 dport=46670 [ASSURED] mark=0 use=1
+
+[exit status: 0]
+
+s sudo ip netns exec ot-fw conntrack -L -p tcp --dport 502 
+conntrack v1.4.8 (conntrack-tools): 1 flow entries have been shown.
+tcp      6 84 TIME_WAIT src=10.77.20.10 dst=10.77.40.11 sport=46670 dport=502 src=10.77.40.11 dst=10.77.20.10 sport=502 dport=46670 [ASSURED] mark=0 use=1
+
+[exit status: 0]
+
+s sudo ip netns exec ot-fw conntrack -L -p tcp --dport 502 
+conntrack v1.4.8 (conntrack-tools): 0 flow entries have been shown.
+
+[exit status: 0]

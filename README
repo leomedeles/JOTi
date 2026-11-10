@@ -1,19 +1,183 @@
 # jOTi (joy OT infrastructure) Lab
 
-A practical laboratory to learn OT Networking, Cybersecurity, commissioning and troubleshooting.
+A practical lab for learning network segmentation, industrial communication,
+firewall policy, commissioning, troubleshooting, and recovery.
 
-## Scope
+The baseline uses one Ubuntu Server VM, Linux network namespaces, virtual
+Ethernet links, a Linux bridge, nftables, and a deterministic Modbus TCP fixture.
 
-- 2 IP subnets connected through a Linux router/firewall.
-- 1 Modbus TCP server
-- 1 authorized client
-- 1 UNauthorized client.
-- Packet captures.
-- Routing table.
-- firewall evidence.
-- Reversible faults inbolving firewall rules and return routes.
+## Current status
 
-## Status
+The routed Modbus baseline is implemented.
 
-Planning and environmen preparation.
-No infrastructure yet.
+Recorded findings, validation coverage, and limitations are maintained in
+[docs/validation.md](docs/validation.md), with captured commands and outputs
+in [docs/evidence/](docs/evidence/).
+
+## Topology
+
+The operations network is 10.77.20.0/24.
+The field network is 10.77.40.0/24.
+
+| Namespace | Interface | IPv4 address | Connection |
+| --- | --- | --- | --- |
+| ot-client | client-ops | 10.77.20.10/24 | sw-client on br-ot-ops |
+| ot-other | other-ops | 10.77.20.20/24 | sw-other on br-ot-ops |
+| ot-fw | fw-ops | 10.77.20.1/24 | sw-fw on br-ot-ops |
+| ot-fw | fw-field | 10.77.40.1/24 | Direct veth link to field-fw |
+| ot-field | field-fw | 10.77.40.11/24 | Direct veth link to fw-field |
+
+br-ot-ops is an unnumbered Linux bridge in Ubuntu's main network namespace.
+It is not connected to the VM's management interface.
+
+Each endpoint has a route to the opposite subnet through ot-fw.
+IPv4 forwarding is enabled inside ot-fw.
+
+Namespaces isolate networking resources. They share the Ubuntu kernel and,
+in this setup, the filesystem; they are not separate virtual machines.
+This baseline uses separate IP subnets, not VLANs.
+
+## Environment and dependencies
+
+The guided lab was built on Ubuntu Server 24.04 LTS in Windows Hyper-V.
+Run the following commands inside Ubuntu.
+
+Install the required tools:
+
+```bash
+sudo apt update
+sudo apt install -y iproute2 nftables conntrack tcpdump python3-venv git
+```
+
+Clone the repo:
+
+```bash
+git clone https://github.com/leomedeles/JOTi.git
+cd JOTi
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+```
+
+requirements.txt pins PyModbus 3.16.2.
+
+## Start the lab
+
+Run all following commands from the repository root.
+
+On a fresh network state, such as after a VM reboot:
+
+```bash
+sudo bash scripts/network-up.sh
+sudo ip netns exec ot-field "$PWD/.venv/bin/python" "$PWD/scripts/field_device.py"
+```
+
+Leave the server running in that terminal.
+
+network-up.sh creates the network, loads firewall.nft inside ot-fw, and enables IPv4
+forwarding only after the policy loads sucessfully. If loading fails, startup exits
+with IPv4 forwarding disabled.
+It does not start the modbus server.
+It refuses to run over existing lab namespaces or conflicting interface names.
+Do not rerun it when the lab network already exists.
+
+The network configuration is temporary and must be recreated after reboot.
+Closing an SSH session is not a reliable way to stop the server.
+
+## Check the baseline
+
+Open another Ubuntu terminal and change to the repository root:
+
+```bash
+source scripts/shell-helpers.sh
+labpython ot-client scripts/read_device.py
+labpython ot-other scripts/read_device.py
+sudo ip netns exec ot-client ping -c 3 10.77.40.11
+sudo ip netns exec ot-other ping -c 3 10.77.40.11
+sudo ip netns exec ot-fw nft list chain inet ot_lab forward
+```
+
+Expected results:
+- ot-client prints registers [2300, 500, 1].
+- ot-other fails to establish the Modbus connection.
+- Both clients can ping the field device.
+- Firewall counters record matched and dropped packets.
+
+These are expected results for a new run, not evidence that it has passed.
+
+## Modbus fixture
+
+The server listens at 10.77.40.11:502 with device ID 1.
+It supplies three fixed, read-only holding registers starting at address 0:
+
+| Register | Raw value | Assigned meaning |
+| --- | --- | --- |
+| 0 | 2300 | 230.0 V |
+| 1 | 500 | 50.0 Hz |
+| 2 | 1 | Ready |
+
+These values are a communication fixture, not a physical process simulation.
+
+## Firewall policy and boundaries
+
+firewall.nft defines the inet ot_lab forwarding chain with policy drop.
+
+It permits:
+- TCP port 502 from ot-client to the field device.
+- Established TCP replies from that server to ot-client.
+- ICMP echo requests from both clients to the field device.
+- Corresponding established echo replies.
+
+Invalid connection state is dropped. A final counter/drop rule records
+unmatched traffic.
+
+The policy filters forwarded traffic. It does not restrict traffic originating
+inside ot-fw or addressed to ot-fw itself. Same-subnet client traffic does not
+traverse this router forwarding chain.
+
+Source IP matching is not authentication. The Modbus fixture does not
+authenticate clients. The policy does not inspect Modbus function codes.
+
+The inet table family covers IPv4 and IPv6, but every allow rule uses IPv4
+address matches. IPv6 forwarding was observed disabled inside ot-fw.
+Routed IPv6 is not supported by this baseline; local-link IPv6 and router
+input/output are not prohibited by this forwarding policy.
+
+## Evidence and troubleshooting
+
+docs/validation.md indexes the recorded findings and raw evidence.
+
+To record a command, its output, and its exit status:
+
+```bash
+source scripts/shell-helpers.sh
+detective labpython ot-client scripts/read_device.py docs/evidence/modbus-read.txt
+```
+
+detective appends to the destination file. The destination directory must exist.
+Neither helper requires virtual-environment activation.
+Load the helpers in each shell where they are needed.
+
+Useful inspection commands:
+
+```bash
+sudo ip netns exec ot-field ss -lntp 'sport = :502'
+sudo ip -n ot-field route get 10.77.20.10
+sudo ip netns exec ot-fw nft list chain inet ot_lab forward
+sudo ip netns exec ot-fw conntrack -L -p tcp --dport 502
+```
+
+## Files and future work
+
+- scripts/network-up.sh: network construction.
+- firewall.nft: saved forwarding policy.
+- scripts/field_device.py: Modbus server fixture.
+- scripts/read_device.py: minimal Modbus client.
+- scripts/shell-helpers.sh and scripts/detective.sh: command helpers.
+- docs/validation.md and docs/evidence/: findings and evidence.
+- backlog.md: future ideas.
+
+VLANs, a firewall appliance, integration, NAT, DMZ/VPN access, and graphical
+interfaces are outside the implemented baseline.
+
+
+

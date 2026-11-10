@@ -1,0 +1,14 @@
++ sudo ip netns exec ot-field ss -lntp 'sport = :502'
+State Recv-Q Send-Q Local Address:Port Peer Address:PortProcess
++ sudo ip netns exec ot-client /home/leomedeles/projects/JOTi/.venv/bin/python /home/leomedeles/projects/JOTi/scripts/read_device.py
+Connection to (10.77.40.11, 502) failed: [Errno 111] Connection refused
+TCP connection failed
++ sudo ip netns exec ot-client ping -c 3 10.77.40.11
+PING 10.77.40.11 (10.77.40.11) 56(84) bytes of data.
+64 bytes from 10.77.40.11: icmp_seq=1 ttl=63 time=0.045 ms
+64 bytes from 10.77.40.11: icmp_seq=2 ttl=63 time=0.088 ms
+64 bytes from 10.77.40.11: icmp_seq=3 ttl=63 time=0.078 ms
+
+--- 10.77.40.11 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2038ms
+rtt min/avg/max/mdev = 0.045/0.070/0.088/0.018 ms

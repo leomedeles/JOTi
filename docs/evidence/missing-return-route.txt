@@ -1,0 +1,21 @@
++ sudo ip -n ot-field route show
+10.77.20.0/24 via 10.77.40.1 dev field-fw 
+10.77.40.0/24 dev field-fw proto kernel scope link src 10.77.40.11 
++ sudo ip -n ot-field route del 10.77.20.0/24 via 10.77.40.1
++ sudo ip -n ot-field route get 10.77.20.10
+RTNETLINK answers: Network is unreachable
++ sudo ip netns exec ot-client /home/leomedeles/projects/JOTi/.venv/bin/python /home/leomedeles/projects/JOTi/scripts/read_device.py
+Connection to (10.77.40.11, 502) failed: timed out
+TCP connection failed
++ sudo ip netns exec ot-field tcpdump -nn -l -i field-fw 'tcp port 502'
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on field-fw, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+14:56:46.571548 IP 10.77.20.10.49004 > 10.77.40.11.502: Flags [S], seq 1736829046, win 64240, options [mss 1460,sackOK,TS val 2417111385 ecr 0,nop,wscale 7], length 0
+14:56:47.616938 IP 10.77.20.10.49004 > 10.77.40.11.502: Flags [S], seq 1736829046, win 64240, options [mss 1460,sackOK,TS val 2417112431 ecr 0,nop,wscale 7], length 0
+14:56:48.641117 IP 10.77.20.10.49004 > 10.77.40.11.502: Flags [S], seq 1736829046, win 64240, options [mss 1460,sackOK,TS val 2417113455 ecr 0,nop,wscale 7], length 0
++ sudo ip -n ot-field route add 10.77.20.0/24 via 10.77.40.1
++ sudo ip -n ot-field route get 10.77.20.10
+10.77.20.10 via 10.77.40.1 dev field-fw src 10.77.40.11 uid 0 
+    cache 
++ sudo ip netns exec ot-client /home/leomedeles/projects/JOTi/.venv/bin/python /home/leomedeles/projects/JOTi/scripts/read_device.py
+Registers:  [2300, 500, 1]

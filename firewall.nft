@@ -1,0 +1,27 @@
+add table inet ot_lab
+flush table inet ot_lab
+
+table inet ot_lab {
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+
+		# Drop packets with an invalid connection state
+		ct state invalid counter drop
+		
+		# Allow Modbus request from the authorized client
+		iifname "fw-ops" oifname "fw-field" ip saddr 10.77.20.10 ip daddr 10.77.40.11 tcp dport 502 ct state { new, established } counter accept
+
+		# Allow replies from the Modbus server to that client
+		iifname "fw-field" oifname "fw-ops" ip saddr 10.77.40.11 ip daddr 10.77.20.10 tcp sport 502 ct state established counter accept
+
+		# Allow both clients to ping the field device
+		iifname "fw-ops" oifname "fw-field" ip saddr { 10.77.20.10, 10.77.20.20 } ip daddr 10.77.40.11 icmp type echo-request counter accept
+
+		# Allow corresponding ping replies
+		iifname "fw-field" oifname "fw-ops" ip saddr 10.77.40.11 ip daddr { 10.77.20.10, 10.77.20.20 } icmp type echo-reply ct state established counter accept
+
+		# Count and discard everything else.
+		counter drop
+	}
+}
+
