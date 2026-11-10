@@ -1,0 +1,109 @@
+
+s sudo ip netns list 
+ot-field (id: 1)
+ot-other (id: 3)
+ot-client (id: 2)
+ot-fw (id: 0)
+
+[exit status: 0]
+
+s sudo ip -br link show type bridge 
+br-ot-ops        UP             e2:6f:7f:f2:09:33 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+
+[exit status: 0]
+
+s sudo bash scripts/network-down.sh 
+Processes are still running inside ot-field:
+13019
+Stop those processes and retry. Nothing was deleted.
+
+[exit status: 1]
+
+s bash scripts/network-down.sh 
+Run this script with sudo.
+
+[exit status: 1]
+
+s sudo bash scripts/network-down.sh 
+Cleanup complete: all four lab namespaces and the bridge are absent.
+
+[exit status: 0]
+
+s sudo ip netns list 
+
+[exit status: 0]
+
+s sudo ip -br link show type bridge 
+
+[exit status: 0]
+
+s sudo bash scripts/network-down.sh 
+Cleanup complete: all four lab namespaces and the bridge are absent.
+
+[exit status: 0]
+
+s sudo ip netns add ot-field 
+
+[exit status: 0]
+
+s sudo ip link add br-ot-ops type bridge 
+
+[exit status: 0]
+
+s sudo ip netns list 
+ot-field
+
+[exit status: 0]
+
+s sudo ip -br link show type bridge 
+br-ot-ops        DOWN           e2:6f:7f:f2:09:33 <BROADCAST,MULTICAST> 
+
+[exit status: 0]
+
+s sudo bash scripts/network-down.sh 
+Cleanup complete: all four lab namespaces and the bridge are absent.
+
+[exit status: 0]
+
+s sudo ip netns list 
+
+[exit status: 0]
+
+s sudo ip -br link show type bridge 
+
+[exit status: 0]
+
+s sudo bash scripts/network-up.sh 
+net.ipv4.ip_forward = 0
+net.ipv4.ip_forward = 1
+Network created. Modbus server is not started.
+
+[exit status: 0]
+
+s labpython ot-client /home/leomedeles/projects/JOTi/scripts/read_device.py 
+Registers:  [2300, 500, 1]
+
+[exit status: 0]
+
+s labpython ot-other /home/leomedeles/projects/JOTi/scripts/read_device.py 
+Connection to (10.77.40.11, 502) failed: timed out
+TCP connection failed
+
+[exit status: 1]
+
+s sudo ip netns exec ot-other ping -c 3 10.77.40.11 /home/leomedeles/projects/JOTi/scripts/read_device.py 
+ping: /home/leomedeles/projects/JOTi/scripts/read_device.py: Name or service not known
+
+[exit status: 2]
+
+s sudo ip netns exec ot-other ping -c 3 10.77.40.11 
+PING 10.77.40.11 (10.77.40.11) 56(84) bytes of data.
+64 bytes from 10.77.40.11: icmp_seq=1 ttl=63 time=0.051 ms
+64 bytes from 10.77.40.11: icmp_seq=2 ttl=63 time=0.081 ms
+64 bytes from 10.77.40.11: icmp_seq=3 ttl=63 time=0.061 ms
+
+--- 10.77.40.11 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2078ms
+rtt min/avg/max/mdev = 0.051/0.064/0.081/0.012 ms
+
+[exit status: 0]

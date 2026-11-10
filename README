@@ -104,6 +104,39 @@ Expected results:
 
 These are expected results for a new run, not evidence that it has passed.
 
+## Stop and clean up
+
+Stop the Modbus server with **Ctrl+C** in its terminal. Also stop any packet captures or other processes running inside the lab namespaces.
+
+From the repository root, run:
+
+```bash
+sudo bash scripts/network-down.sh
+```
+
+The script checks all four lab namespaces for running processes before deleting anything. If it finds a process, it reports the namespace and PID, then exits without starting deletion. Stop the reported processes and retry.
+
+Once the namespaces are idle, the script removes:
+
+- `ot-client`
+- `ot-other`
+- `ot-field`
+- `ot-fw`
+- The bridge `br-ot-ops`
+
+It verifies that these resources are absent before reporting successful cleanup. Resources that are already absent are skipped, allowing repeated cleanup and cleanup after a partial startup.
+
+To inspect the remaining resources:
+
+```bash
+sudo ip netns list
+ip -br link show type bridge
+```
+
+The four lab namespace names and `br-ot-ops` should no longer appear.
+
+To rebuild the lab, follow **Start the lab** again. Start the Modbus server in a separate terminal.
+
 ## Modbus fixture
 
 The server listens at 10.77.40.11:502 with device ID 1.
