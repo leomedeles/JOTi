@@ -61,7 +61,18 @@ ip -n ot-client route add 10.77.40.0/24 via 10.77.20.1
 ip -n ot-other route add 10.77.40.0/24 via 10.77.20.1
 ip -n ot-field route add 10.77.20.0/24 via 10.77.40.1
 
+# Locate firewall.nft relative to this script.
+FIREWALL_FILE="$(dirname -- "$0")/../firewall.nft"
+
+# Keep forwarding disabled until the firewall loads successfully.
+ip netns exec ot-fw sysctl -w net.ipv4.ip_forward=0
+
+if ! ip netns exec ot-fw nft -f "$FIREWALL_FILE"; then
+    echo "Firewall loading failed; IPv4 forwarding remains disabled." >&2
+    exit 1
+fi
+
 # Allow the router to pass IPv4 pacjets between interfaces
 ip netns exec ot-fw sysctl -w net.ipv4.ip_forward=1
 
-echo "Network created. Firewall rules and Modbus server ar not started."
+echo "Network created. Modbus server is not started."
