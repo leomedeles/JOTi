@@ -49,10 +49,10 @@ sudo apt update
 sudo apt install -y iproute2 nftables conntrack tcpdump python3-venv git
 ```
 
-Until the lab is merged into the default branch, clone its feature branch:
+Clone the repo:
 
 ```bash
-git clone --branch feat/routed-modbus-lab https://github.com/leomedeles/JOTi.git
+git clone https://github.com/leomedeles/JOTi.git
 cd JOTi
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
