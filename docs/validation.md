@@ -152,3 +152,15 @@ Evidence: evidence/wrong-subnet-mask.txt
 - Recovery: restored the policy file, removed the partial lab setup, and started again, Startup succeeded and the allowed/denied access checks passed again
 
 Evidence: evidence/firewall-startup.txt
+
+## Lab cleanup
+
+- Running-process guard: cleanup detected a process inside `ot-field` and refused with exit status 1.
+- Privilege guard: running without sudo was rejected with exit status 1.
+- Normal cleanup: after stopping the server, cleanup exited 0; namespace and bridge inspection confirmed the lab resources were absent.
+- Repeated cleanup: running again with the lab absent exited 0.
+- Partial setup: with only `ot-field` and `br-ot-ops` present, cleanup succeeded and both were removed.
+- Rebuild: `network-up.sh` recreated the lab successfully.
+- Communication after rebuild: `ot-client` read registers; `ot-other` timed out on Modbus but could ping the field device.
+
+Evidence: evidence/cleanup.txt
