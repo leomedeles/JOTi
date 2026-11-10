@@ -141,3 +141,14 @@ Evidence evidence/link-down.txt
 - Recovery: restores subnetmask of `/24` and the return route, mosbus client read succeeded
 
 Evidence: evidence/wrong-subnet-mask.txt
+
+## Automatic firewall loading at startup
+
+- change: `network-up.sh` disables IPv4 forwarding, loads `firewall.nft` inside `ot-fw`, and enables forwardinng only after loading succeeds
+- Normal startup: the `ot-lab` ruleset was installed automatically and IPv4 forwarding was enabled
+- Access checks: `ot-client` read Modbus registers; `ot-other` timed out on modbus but could ping the field device
+- Failure injection: temporarly renamed the `firewall.nft` before a clean startup
+- Failure result: startup exited with statius 1, IPv4 forwarding remainted disabled, and the ruleset empty
+- Recovery: restored the policy file, removed the partial lab setup, and started again, Startup succeeded and the allowed/denied access checks passed again
+
+Evidence: evidence/firewall.startup.txt

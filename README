@@ -8,16 +8,11 @@ Ethernet links, a Linux bridge, nftables, and a deterministic Modbus TCP fixture
 
 ## Current status
 
-The routed Modbus lab is implemented. Validation has demonstrated:
-- Authorized Modbus access and blocked access from another client.
-- ICMP reachability from both clients.
-- Default-drop filtering, including an unlisted TCP port.
-- Network reconstruction with the saved firewall policy.
-- Service, return-route, and firewall-policy fault diagnosis and recovery.
-- Connection-tracking state transitions.
+The routed Modbus baseline is implemented.
 
-IPv6 configuration has been inspected; active routed IPv6 testing has not been
-performed. See docs/validation.md for findings and evidence limitations.
+Recorded findings, validation coverage, and limitations are maintained in
+[docs/validation.md](docs/validation.md), with captured commands and outputs
+in [docs/evidence/](docs/evidence/).
 
 ## Topology
 
@@ -73,14 +68,15 @@ On a fresh network state, such as after a VM reboot:
 
 ```bash
 sudo bash scripts/network-up.sh
-sudo ip netns exec ot-fw nft -f "$PWD/firewall.nft"
 sudo ip netns exec ot-field "$PWD/.venv/bin/python" "$PWD/scripts/field_device.py"
 ```
 
 Leave the server running in that terminal.
 
-network-up.sh creates the network and enables IPv4 forwarding.
-It does not load the firewall or start the server.
+network-up.sh creates the network, loads firewall.nft inside ot-fw, and enables IPv4
+forwarding only after the policy loads sucessfully. If loading fails, startup exits
+with IPv4 forwarding disabled.
+It does not start the modbus server.
 It refuses to run over existing lab namespaces or conflicting interface names.
 Do not rerun it when the lab network already exists.
 
