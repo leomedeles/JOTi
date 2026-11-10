@@ -1,0 +1,136 @@
+
+s sudo bash scripts/network-up.sh 
+net.ipv4.ip_forward = 0
+net.ipv4.ip_forward = 1
+Network created. Modbus server is not started.
+
+[exit status: 0]
+
+s sudo ip netns exec ot-fw nft list ruleset 
+table inet ot_lab {
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+		ct state invalid counter packets 0 bytes 0 drop
+		iifname "fw-ops" oifname "fw-field" ip saddr 10.77.20.10 ip daddr 10.77.40.11 tcp dport 502 ct state { established, new } counter packets 0 bytes 0 accept
+		iifname "fw-field" oifname "fw-ops" ip saddr 10.77.40.11 ip daddr 10.77.20.10 tcp sport 502 ct state established counter packets 0 bytes 0 accept
+		iifname "fw-ops" oifname "fw-field" ip saddr { 10.77.20.10, 10.77.20.20 } ip daddr 10.77.40.11 icmp type echo-request counter packets 0 bytes 0 accept
+		iifname "fw-field" oifname "fw-ops" ip saddr 10.77.40.11 ip daddr { 10.77.20.10, 10.77.20.20 } icmp type echo-reply ct state established counter packets 0 bytes 0 accept
+		counter packets 0 bytes 0 drop
+	}
+}
+
+[exit status: 0]
+
+s sudo ip netns exec ot-fw sysctl net.ipv4.ip_forward 
+net.ipv4.ip_forward = 1
+
+[exit status: 0]
+
+s labpython ot-client /home/leomedeles/projects/JOTi/scripts/read_device.py 
+  File "/home/leomedeles/projects/JOTi/scripts/read_device.py", line 37
+    
+    ^
+SyntaxError: invalid non-printable character U+0018
+
+[exit status: 1]
+
+s labpython ot-client /home/leomedeles/projects/JOTi/scripts/read_device.py 
+Registers:  [2300, 500, 1]
+
+[exit status: 0]
+
+s labpython ot-other /home/leomedeles/projects/JOTi/scripts/read_device.py 
+Connection to (10.77.40.11, 502) failed: timed out
+TCP connection failed
+
+[exit status: 1]
+
+s sudo ip netns exec ot-client ping -c 1 10.77.40.11 
+PING 10.77.40.11 (10.77.40.11) 56(84) bytes of data.
+64 bytes from 10.77.40.11: icmp_seq=1 ttl=63 time=0.048 ms
+
+--- 10.77.40.11 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.048/0.048/0.048/0.000 ms
+
+[exit status: 0]
+
+s sudo ip netns exec ot-other ping -c 1 10.77.40.11 
+PING 10.77.40.11 (10.77.40.11) 56(84) bytes of data.
+64 bytes from 10.77.40.11: icmp_seq=1 ttl=63 time=0.053 ms
+
+--- 10.77.40.11 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.053/0.053/0.053/0.000 ms
+
+[exit status: 0]
+
+s sudo bash scripts/network-up.sh 
+net.ipv4.ip_forward = 0
+internal:0:0-0: Error: Could not open file "scripts/../firewall.nft": No such file or directory
+
+
+Firewall loading failed; IPv4 forwarding remains disabled.
+
+[exit status: 1]
+
+s labpython ot-client /home/leomedeles/projects/JOTi/scripts/read_device.py 
+Connection to (10.77.40.11, 502) failed: timed out
+TCP connection failed
+
+[exit status: 1]
+
+s labpython ot-client /home/leomedeles/projects/JOTi/scripts/read_device.py 
+Connection to (10.77.40.11, 502) failed: timed out
+TCP connection failed
+
+[exit status: 1]
+
+s sudo ip netns exec ot-fw nft list ruleset 
+
+[exit status: 0]
+
+s sudo bash scripts/network-up.sh 
+net.ipv4.ip_forward = 0
+net.ipv4.ip_forward = 1
+Network created. Modbus server is not started.
+
+[exit status: 0]
+
+s labpython ot-client /home/leomedeles/projects/JOTi/scripts/read_revice.py 
+/home/leomedeles/projects/JOTi/.venv/bin/python: can't open file '/home/leomedeles/projects/JOTi/scripts/read_revice.py': [Errno 2] No such file or directory
+
+[exit status: 2]
+
+s labpython ot-client /home/leomedeles/projects/JOTi/scripts/read_device.py 
+Registers:  [2300, 500, 1]
+
+[exit status: 0]
+
+s labpython ot-other /home/leomedeles/projects/JOTi/scripts/read_device.py 
+Connection to (10.77.40.11, 502) failed: timed out
+TCP connection failed
+
+[exit status: 1]
+
+s labpython ot-other ping -c 3 -W 1 10.77.40.11 
+/home/leomedeles/projects/JOTi/.venv/bin/python: can't open file '/home/leomedeles/projects/JOTi/ping': [Errno 2] No such file or directory
+
+[exit status: 2]
+
+s sudo ip netns ot-other ping -c 3 -W 1 10.77.40.11 
+Command "ot-other" is unknown, try "ip netns help".
+
+[exit status: 255]
+
+s sudo ip netns exec ot-other ping -c 3 -W 1 10.77.40.11 
+PING 10.77.40.11 (10.77.40.11) 56(84) bytes of data.
+64 bytes from 10.77.40.11: icmp_seq=1 ttl=63 time=0.049 ms
+64 bytes from 10.77.40.11: icmp_seq=2 ttl=63 time=0.054 ms
+64 bytes from 10.77.40.11: icmp_seq=3 ttl=63 time=0.111 ms
+
+--- 10.77.40.11 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2044ms
+rtt min/avg/max/mdev = 0.049/0.071/0.111/0.028 ms
+
+[exit status: 0]
